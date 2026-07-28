@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ai-dev-toolkit — marketplace plan</title>
+<style>
+  :root {
+    --bg: #fbfaf8; --fg: #1d1c1a; --muted: #6b6862; --line: #e2ded6;
+    --code-bg: #f2efe9; --accent: #9a3f16; --warn-bg: #fdf4ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17161a; --fg: #e8e6e1; --muted: #9d9a94; --line: #302e34;
+      --code-bg: #201f24; --accent: #e08b5a; --warn-bg: #241d18;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 3rem 1.25rem 6rem;
+    background: var(--bg); color: var(--fg);
+    font: 16px/1.65 ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  main { max-width: 46rem; margin: 0 auto; }
+  h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 .25rem; letter-spacing: -.01em; }
+  .sub { color: var(--muted); margin: 0 0 2.5rem; font-size: .95rem; }
+  h2 {
+    font-size: 1.05rem; margin: 3rem 0 .75rem; padding-bottom: .4rem;
+    border-bottom: 1px solid var(--line); letter-spacing: .01em;
+  }
+  h2 .n { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .5rem; }
+  h3 { font-size: .95rem; margin: 1.75rem 0 .5rem; }
+  p, li { margin: .5rem 0; }
+  ul, ol { padding-left: 1.3rem; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .875em; background: var(--code-bg); padding: .1em .35em; border-radius: 3px;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px;
+    padding: .9rem 1rem; overflow-x: auto; margin: .9rem 0;
+  }
+  pre code { background: none; padding: 0; font-size: .82rem; line-height: 1.55; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; display: block; overflow-x: auto; }
+  th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+  .note {
+    background: var(--warn-bg); border-left: 3px solid var(--accent);
+    padding: .75rem 1rem; margin: 1.25rem 0; border-radius: 0 4px 4px 0;
+  }
+  .note strong { color: var(--accent); }
+  .skip { color: var(--muted); font-size: .92rem; }
+  footer { margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Your own Claude Code marketplace</h1>
+<p class="sub">Plan for <code>github.com/ok2ju/ai-dev-toolkit</code> · written 2026-07-28</p>
+
+<h2><span class="n">1</span>Goal</h2>
+<p>One git repository holds every skill, agent, command, and hook you write, and any project can install them with two commands. Other developers can install them as well, as soon as you make the repository public.</p>
+
+<h2><span class="n">2</span>The honest part first</h2>
+<p>A Claude Code marketplace is not a product, it is simply a git repository with one JSON manifest inside it. Claude Code clones the repository and reads that manifest, so there is no server, no build step, and nothing to upload.</p>
+<p>The work here is therefore small, and the only genuine risk is the decision to make it large, so skip every item below:</p>
+<ul class="skip">
+  <li>A web catalog or a dashboard, because the <code>/plugin</code> command already lists everything you publish.</li>
+  <li>A monorepo toolchain such as Nx or Turborepo, because nothing inside this repository compiles.</li>
+  <li>One repository for each plugin, because every extra repository means another marketplace update to run.</li>
+  <li>A release pipeline that packages files, because pushing to git is already the release.</li>
+</ul>
+<p>The second risk is choosing the wrong unit, because a marketplace lists plugins and nothing else. A bare skill or a lone agent cannot ship on its own, so each one must live inside a plugin. The plugin split is therefore the one design choice that really matters, because fixing it later needs renames, and renames break every installation.</p>
+<p>You already install plugins from other marketplaces, so keep this layout close to theirs. A familiar shape removes the context switch, and moving a plugin between two marketplaces becomes a folder copy.</p>
+
+<h2><span class="n">3</span>Layout</h2>
+<pre><code>ai-dev-toolkit/
+├── .claude-plugin/
+│   └── marketplace.json        # the whole registry, one file
+├── plugins/
+│   ├── core/                   # your daily drivers
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json
+│   │   ├── skills/
+│   │   │   └── review-diff/SKILL.md
+│   │   ├── agents/
+│   │   │   └── scout.md
+│   │   ├── commands/
+│   │   │   └── ship.md
+│   │   ├── hooks/hooks.json    # only when hooks are needed
+│   │   ├── scripts/            # hook scripts live here
+│   │   ├── .mcp.json           # only when the plugin owns an MCP server
+│   │   └── README.md
+│   └── frontend/               # same shape, different domain
+├── scripts/
+│   └── validate.mjs            # one file, no dependencies
+├── .github/workflows/ci.yml
+├── docs/
+└── README.md</code></pre>
+<p>Every plugin repeats that same shape, and every folder is optional except <code>.claude-plugin/plugin.json</code>, so that single rule is the whole convention.</p>
+
+<h2><span class="n">4</span>The two manifests</h2>
+<h3>Root: <code>.claude-plugin/marketplace.json</code></h3>
+<pre><code>{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ai-dev-toolkit",
+  "description": "Personal Claude Code plugins: skills, agents, commands, hooks.",
+  "owner": { "name": "ok2ju", "email": "soulSpringg@gmail.com" },
+  "metadata": { "version": "0.1.0", "pluginRoot": "./" },
+  "plugins": [
+    {
+      "name": "core",
+      "source": "./plugins/core",
+      "description": "Daily drivers: diff review, ship flow, scout agent.",
+      "version": "0.1.0",
+      "category": "development",
+      "keywords": ["review", "git", "workflow"]
+    }
+  ]
+}</code></pre>
+<h3>Per plugin: <code>plugins/core/.claude-plugin/plugin.json</code></h3>
+<pre><code>{
+  "name": "core",
+  "description": "Daily drivers: diff review, ship flow, scout agent.",
+  "version": "0.1.0",
+  "author": { "name": "ok2ju" },
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ {
+          "type": "command",
+          "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/on-start.mjs\"",
+          "timeout": 5
+      } ] }
+    ]
+  }
+}</code></pre>
+<div class="note">
+  <p><strong>Two rules that bite.</strong> Hook commands must always use <code>${CLAUDE_PLUGIN_ROOT}</code>, because a relative path breaks as soon as Claude starts from another folder. The version must also match in both manifests, and because nothing checks that for you, the validator will.</p>
+</div>
+
+<h2><span class="n">5</span>How to split plugins</h2>
+<p>Split plugins by the job they perform, never by file type. A skills plugin next to an agents plugin is the wrong cut, because nobody wants half a workflow.</p>
+<table>
+  <tr><th>Plugin</th><th>Holds</th><th>Why it deserves its own unit</th></tr>
+  <tr><td><code>core</code></td><td>Habits you want in every repo</td><td>Always installed first.</td></tr>
+  <tr><td><code>frontend</code></td><td>React, CSS, and Figma work</td><td>Dead weight in a backend repo.</td></tr>
+  <tr><td><code>infra</code></td><td>Terraform, CI, deploys</td><td>Wide blast radius, so opt-in.</td></tr>
+</table>
+<p>Start with <code>core</code> alone. Add a second plugin only once a skill really stops fitting inside <code>core</code>. Three solid plugins are easier to live with than ten fragments, because every installation stays a manual step.</p>
+<p>Plugin names are your public interface, so pick short lowercase names separated by dashes. A later rename breaks every installation, and only a <code>renames</code> map in the root manifest can rescue it. Check the official marketplace first, otherwise two entries in one list will collide over a single name.</p>
+
+<h2><span class="n">6</span>Versions</h2>
+<ul>
+  <li>Bump the plugin version on any change, and bump the marketplace version whenever a plugin is added or dropped.</li>
+  <li>Use patch for wording, minor for new files, and major for a rename or a deleted command.</li>
+  <li>Skip git tags and changelogs at first, and add a <code>CHANGELOG.md</code> to a plugin only once someone besides you depends on it.</li>
+</ul>
+
+<h2><span class="n">7</span>The one script you need</h2>
+<p>Write <code>scripts/validate.mjs</code> in plain Node with no extra packages, and make it fail loudly on the problems below:</p>
+<ol>
+  <li>Bad JSON in either manifest, or a <code>source</code> path that points at no folder.</li>
+  <li>A plugin folder missing from <code>marketplace.json</code>, which is the mistake you will make most often.</li>
+  <li>Two plugins that share one name, or a version that differs between the root manifest and the plugin manifest.</li>
+  <li>A <code>SKILL.md</code> or agent file whose frontmatter lacks <code>name</code> or <code>description</code>, because Claude Code silently ignores those files.</li>
+  <li>A hook command written without <code>${CLAUDE_PLUGIN_ROOT}</code>, which breaks the moment somebody installs the plugin elsewhere.</li>
+</ol>
+<p>Run that script from <code>.github/workflows/ci.yml</code> on every push, and the pipeline is complete. Some 120 lines of validation catch nearly every mistake you realistically make.</p>
+
+<h2><span class="n">8</span>Daily loop</h2>
+<pre><code># once, point Claude at your local checkout
+/plugin marketplace add ~/Projects/ai-dev-toolkit
+/plugin install core@ai-dev-toolkit
+
+# edit files, then reload
+/plugin marketplace update ai-dev-toolkit
+
+# once published, on any other machine
+/plugin marketplace add ok2ju/ai-dev-toolkit</code></pre>
+<p>Point Claude at the local checkout while you build. That tests the genuine installation path, instead of a copy inside <code>~/.claude</code>. Restart the session after any hook change, since hooks load only at session start.</p>
+<p>Leave <code>autoUpdate</code> disabled on your own marketplace. You want to break your configuration deliberately, rather than in the middle of a task.</p>
+
+<h2><span class="n">9</span>Real risks</h2>
+<ul>
+  <li><strong>Hooks execute code on your machine</strong>, which holds for your own plugins and for anything you add from a stranger. Read the hook scripts beforehand, because this is the only genuine security boundary here.</li>
+  <li><strong>A public repository leaks private knowledge</strong>, because skills carry client names, internal URLs, and ticket workflows. Start private, then open up one plugin at a time.</li>
+  <li><strong>Token bloat is real</strong>, because every skill description loads into every session. Long descriptions cost money and attention, so each one belongs in a line or two.</li>
+  <li><strong>Cross-plugin imports do not exist</strong>, so a skill in <code>frontend</code> cannot reuse one in <code>core</code>, which leaves two options: copy a few lines, or keep the shared material in <code>core</code> and treat <code>core</code> as a prerequisite. Building an import layer is never worth it.</li>
+  <li><strong>Nothing checks behaviour</strong>, because the validator inspects structure rather than results. Only real usage reveals whether a skill works, so that gap is worth accepting.</li>
+</ul>
+
+<h2><span class="n">10</span>Build order</h2>
+<table>
+  <tr><th>Step</th><th>Work</th><th>Finished when</th></tr>
+  <tr><td>1</td><td>Root <code>marketplace.json</code>, <code>plugins/core</code> with one real skill, README</td><td><code>/plugin install core@ai-dev-toolkit</code> works from the local path</td></tr>
+  <tr><td>2</td><td>Move your three best skills and agents into <code>core</code></td><td>You lean on them in a live task</td></tr>
+  <tr><td>3</td><td><code>validate.mjs</code> plus CI</td><td>A broken commit fails the build</td></tr>
+  <tr><td>4</td><td>Push to GitHub, install on a second machine</td><td>Install works from the repo name</td></tr>
+  <tr><td>5</td><td>Split out a second plugin, only if <code>core</code> got crowded</td><td>Both plugins install clean</td></tr>
+</table>
+<p>Step one takes under an hour, steps two through four deliver the actual value, and step five may never arrive, which would be a healthy outcome.</p>
+
+<footer>Adding a plugin should mean one new folder plus one new manifest entry. Whenever it demands more than that, the setup has grown a layer it never earned.</footer>
+
+</main>
+</body>
+</html>

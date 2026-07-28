@@ -1,0 +1,6 @@
+{
+  "name": "core",
+  "description": "Daily drivers: review your diff before it ships.",
+  "version": "0.1.0",
+  "author": { "name": "ok2ju" }
+}
