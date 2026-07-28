@@ -8,10 +8,10 @@
     {
       "name": "core",
       "source": "./plugins/core",
-      "description": "Daily drivers: review your diff before it ships.",
-      "version": "0.1.0",
+      "description": "Daily drivers: diff review, plan-to-issues breakdown.",
+      "version": "0.2.0",
       "category": "development",
-      "keywords": ["review", "git", "workflow"]
+      "keywords": ["review", "git", "workflow", "planning", "issues"]
     }
   ]
 }

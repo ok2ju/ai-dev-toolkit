@@ -5,6 +5,7 @@ Habits worth having in every repository.
 | Kind | Name | What it does |
 |------|------|--------------|
 | Skill | `review-diff` | Reviews the working diff or branch before commit or PR. |
+| Skill | `to-issues` | Breaks a plan or spec into independently-grabbable vertical-slice issues. |
 
 ## Install
 
