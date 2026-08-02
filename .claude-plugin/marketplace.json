@@ -8,10 +8,10 @@
     {
       "name": "core",
       "source": "./plugins/core",
-      "description": "Daily drivers: diff review, plan-to-issues breakdown, plan grilling, session handoff, primary-source research.",
-      "version": "0.3.0",
+      "description": "A tiered explore-plan-ship workflow with state on disk, plus the daily drivers: diff review, plan-to-issues breakdown, plan grilling, session handoff, primary-source research, project house rules.",
+      "version": "0.6.0",
       "category": "development",
-      "keywords": ["review", "git", "workflow", "planning", "issues", "handoff", "research"]
+      "keywords": ["review", "git", "workflow", "planning", "issues", "handoff", "research", "claude-md"]
     }
   ]
 }

@@ -15,7 +15,7 @@ No server, no build step. Claude Code clones the repository and reads `.claude-p
 
 | Plugin | Holds |
 |--------|-------|
-| [`core`](plugins/core) | Habits worth having in every repository. |
+| [`core`](plugins/core) | Habits worth having in every repository, and the [explore-plan-ship workflow](plugins/core/WORKFLOW.md) they fit into. |
 
 ## Working on it locally
 
