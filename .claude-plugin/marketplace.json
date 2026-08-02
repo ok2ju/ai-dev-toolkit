@@ -8,10 +8,10 @@
     {
       "name": "core",
       "source": "./plugins/core",
-      "description": "Daily drivers: diff review, plan-to-issues breakdown.",
-      "version": "0.2.0",
+      "description": "Daily drivers: diff review, plan-to-issues breakdown, plan grilling, session handoff, primary-source research.",
+      "version": "0.3.0",
       "category": "development",
-      "keywords": ["review", "git", "workflow", "planning", "issues"]
+      "keywords": ["review", "git", "workflow", "planning", "issues", "handoff", "research"]
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "core",
-  "description": "Daily drivers: diff review, plan-to-issues breakdown.",
-  "version": "0.2.0",
+  "description": "Daily drivers: diff review, plan-to-issues breakdown, plan grilling, session handoff, primary-source research.",
+  "version": "0.3.0",
   "author": { "name": "ok2ju" }
 }
