@@ -1,6 +1,6 @@
 # The workflow
 
-Nine skills, one loop: **map the code, decide the approach, build it, prove it.**
+Eleven skills, one loop: **map the code, decide the approach, build it, prove it.**
 
 Install once, use in every repository. Nothing here is specific to a project, a language, or a stack — see [Using this in every project](#using-this-in-every-project).
 
@@ -134,12 +134,14 @@ Off the line, by trigger rather than by order:
 
 | Skill | When |
 |-------|------|
-| `research` | During `explore`, for anything outside this repo — library behaviour, an API contract, a spec. Runs as a background agent, so it costs you almost no context. |
+| `research` | During `explore`, for anything outside this repo — library behaviour, an API contract, a spec. Runs as a background agent, so it costs you almost no context, and writes one file: Markdown, or a self-contained HTML report on request. |
 | `grill-me` | After `plan`, before `ship`, when the plan rests on decisions that would collapse if one flipped. |
 | `to-issues` | After `plan`, for **L** only, when slices leave your session for other people or other days. |
 | `review-diff` | At the end of `ship`, before every commit or PR. Also the entire process for **S**. |
 | `handoff` | Any time the context is running out. `notes.md` + `plan.md` + `state.md` + a handoff document beats a full context guessing at its own earlier reasoning. |
 | `house-rules` | Once, when a repository first starts using any of this. Writes the standing rules into that project's `CLAUDE.md`, so they are in context before they are needed rather than after. |
+| `copywriter` | Any time prose leaves the session for a human reader — a PR description, release notes, docs, UI strings. Not code, not commit messages. |
+| `automate-me` | Once per person, to turn their working conventions into a `-mode` skill other agents then follow. Mines your own transcripts, so it asks before it commits anything. |
 
 ---
 

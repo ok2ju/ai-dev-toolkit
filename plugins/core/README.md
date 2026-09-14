@@ -13,8 +13,10 @@ Habits worth having in every repository.
 | Skill | `handoff` | Compacts the conversation into a handoff document for a fresh agent. Slash command only. |
 | Skill | `research` | Sends a background agent to answer a question from primary sources and write up the findings. |
 | Skill | `house-rules` | Writes the standing coding rules into a project's `CLAUDE.md`, once per repository. Slash command only. |
+| Skill | `copywriter` | Writes and edits prose in any language so it reads as written by a person, not generated. |
+| Skill | `automate-me` | Turns the user's own working conventions into a personal `-mode` skill. Slash command only. |
 
-The first three are one loop: **map → decide → build and prove**. State lives in files under `.scratch/<slug>/`, so the chain survives a lost context instead of relying on the model to remember where it was. The other six plug into that loop or stand alone.
+The first three are one loop: **map → decide → build and prove**. State lives in files under `.scratch/<slug>/`, so the chain survives a lost context instead of relying on the model to remember where it was. The other eight plug into that loop or stand alone.
 
 ```
 /explore <task> → /plan → /ship → /review-diff
