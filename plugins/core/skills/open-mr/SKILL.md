@@ -14,18 +14,23 @@ Nothing below reads the full diff. The description comes from the decisions, and
 
 **This skill does not push.** Pushing is the author's call, and it happens before this runs.
 
+Ask the remote, not the local config:
+
 ```bash
-git status -sb | head -1
-git log @{u}..HEAD --oneline 2>/dev/null
+branch=$(git branch --show-current)
+git ls-remote --heads origin "$branch"   # empty output = the remote has no such branch
+git rev-parse HEAD
 ```
 
-- **No upstream** → the branch has never been pushed. Say so, give the exact command, stop:
-  `git push -u origin $(git branch --show-current)`
-- **Ahead of upstream** → name the commits that exist only locally and stop. An MR opened now describes work the host cannot see, and the reviewer gets a diff that does not match the description.
-- **Uncommitted changes in the working tree** → one line of warning, not a stop. They are simply not in the MR.
-- **Up to date** → continue.
+`git status -sb`, `git rev-parse @{u}` and `@{u}..HEAD` all report **local tracking config**, not the remote. A branch pushed without `-u` is on the remote with no upstream set, and those checks call it "never pushed". Do not use them for this. `git ls-remote` queries the remote itself and is correct either way.
 
-Then check the branch does not already have one: `glab mr view` / `gh pr view` on the current branch. It does → report the URL and stop. Rewriting an existing description is `glab mr update` / `gh pr edit`, and it is the author's decision, not this skill's.
+- **`ls-remote` printed nothing** → the branch really is not on the remote. Say so, give the exact command, stop:
+  `git push -u origin $(git branch --show-current)`
+- **Remote SHA ≠ `HEAD`** → say which way. `git merge-base --is-ancestor <remote-sha> HEAD` succeeds → local commits are unpushed: name them (`git log <remote-sha>..HEAD --oneline`) and stop. An MR opened now describes work the host cannot see. Fails, or the SHA is unknown locally (`git cat-file -e <remote-sha>^{commit}`) → the remote has commits you do not: `git fetch origin "$branch"` and re-check.
+- **Uncommitted changes in the working tree** → one line of warning, not a stop. They are simply not in the MR.
+- **Remote SHA == `HEAD`** → continue.
+
+Then check the branch does not already have one: `glab mr view "$branch"` / `gh pr view "$branch"`. It does → report the URL and stop. Rewriting an existing description is `glab mr update` / `gh pr edit`, and it is the author's decision, not this skill's.
 
 ## 2. Pick the host
 
