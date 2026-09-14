@@ -1,6 +1,6 @@
 # The workflow
 
-Eleven skills and one agent, one loop: **map the code, decide the approach, build it, prove it.**
+Thirteen skills and one agent, one loop: **map the code, decide the approach, build it, prove it.**
 
 Install once, use in every repository. Nothing here is specific to a project, a language, or a stack — see [Using this in every project](#using-this-in-every-project).
 
@@ -115,16 +115,16 @@ Finishes with `review-diff`, then reports criteria met, criteria not met, and an
 
 ```
 # S — no skills
-say the task → /review-diff → commit
+say the task → /review-diff → /commit
 
 # M
 /explore <task>   → notes.md
 /plan             → plan.md      (asks you to sign off the criteria)
 /ship             → state.md     (updated after every step)
-                  → /review-diff → commit
+                  → /review-diff → /commit → push → /open-mr
 
 # L
-/explore → /plan → /grill-me → /to-issues → /ship per issue → /review-diff per issue
+/explore → /plan → /grill-me → /to-issues → /ship per issue → /review-diff → /commit → /open-mr per issue
 
 # resuming after a break, a crash, or a new session
 /ship <slug>      → reads state.md, continues from Next
@@ -140,6 +140,8 @@ Off the line, by trigger rather than by order:
 | `grill-me` | After `plan`, before `ship`, when the plan rests on decisions that would collapse if one flipped. |
 | `to-issues` | After `plan`, for **L** only, when slices leave your session for other people or other days. |
 | `review-diff` | At the end of `ship`, before every commit or PR. Also the entire process for **S**. Spawns the `diff-reviewer` agent, so the diff is read in its own context and only the findings come back — which is what makes a review affordable at the end of a long session, the one time it is always needed. |
+| `commit` | Every commit. Refuses to commit onto `main` and creates the work branch instead, requires a ticket number — asking for it rather than guessing — reads the convention out of this repository's own `git log` instead of imposing one, and bans AI attribution from the message. Runs in this thread on purpose: an agent with a clean context does not know why the change was made, and that is the whole body. |
+| `open-mr` | Once the branch is pushed — it does not push. Detects GitLab or GitHub from the remote, fills the project's own MR template from `plan.md` and `state.md` rather than from the diff, and opens a draft. |
 | `handoff` | Any time the context is running out. `notes.md` + `plan.md` + `state.md` + a handoff document beats a full context guessing at its own earlier reasoning. |
 | `house-rules` | Once, when a repository first starts using any of this. Writes the standing rules into that project's `CLAUDE.md`, so they are in context before they are needed rather than after. |
 | `copywriter` | Any time prose leaves the session for a human reader — a PR description, release notes, docs, UI strings. Not code, not commit messages. |

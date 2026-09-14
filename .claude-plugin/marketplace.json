@@ -14,8 +14,8 @@
     {
       "name": "core",
       "source": "./plugins/core",
-      "description": "A tiered explore-plan-ship workflow with state on disk, plus the daily drivers: diff review, plan-to-issues breakdown, plan grilling, session handoff, primary-source research, project house rules, human-sounding copywriting, and personal -mode skill authoring.",
-      "version": "0.8.0",
+      "description": "A tiered explore-plan-ship workflow with state on disk, plus the daily drivers: diff review, conventional commits, GitLab and GitHub merge requests, plan-to-issues breakdown, plan grilling, session handoff, primary-source research, project house rules, human-sounding copywriting, and personal -mode skill authoring.",
+      "version": "0.9.0",
       "category": "development",
       "keywords": [
         "review",
@@ -27,7 +27,11 @@
         "research",
         "claude-md",
         "copywriting",
-        "skills"
+        "skills",
+        "commit",
+        "merge-request",
+        "gitlab",
+        "github"
       ]
     }
   ]
