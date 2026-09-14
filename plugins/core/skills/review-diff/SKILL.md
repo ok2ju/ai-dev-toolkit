@@ -5,33 +5,32 @@ description: Review the working diff before commit or PR — correctness, securi
 
 # Review diff
 
-Read the whole change before judging any part of it.
+Delegate the reading to the `diff-reviewer` agent, which holds the checklist and the report format. The diff never has to enter this conversation's context, which matters most at the end of a long `ship` — the moment the review is needed and the room for it is gone.
 
-## Get the diff
+## 1. Fix the scope
 
 ```bash
 git status --short
-git diff HEAD          # staged + unstaged vs last commit
-git diff main...HEAD   # whole branch, when reviewing a PR
+git diff --stat HEAD          # staged + unstaged vs last commit
+git diff --stat main...HEAD   # whole branch, when reviewing a PR
 ```
 
-If the diff exceeds what you can hold, review file by file, largest first.
+`--stat` only. Reading the diff here is the cost this skill exists to avoid.
 
-## What to look for, in this order
+Default scope is `HEAD`. Use the branch range when the user says PR, branch, or names a base. Empty scope — say so and stop.
 
-1. **Correctness** — trace one real input through each changed path. Off-by-one, inverted condition, `null` reaching a `.field`, an `await` that is missing.
-2. **Callers** — for every changed signature or behaviour, `grep` the callers. A fix applied to one call site and not its siblings is half a fix.
-3. **Errors and data loss** — new `catch` that swallows, retry without a limit, a write with no rollback path.
-4. **Secrets and inputs** — tokens, keys, internal URLs, customer names in fixtures. Unvalidated input crossing a trust boundary.
-5. **Leftovers** — debug prints, commented-out code, `TODO` with no owner, a dependency added for three lines.
-6. **Tests** — does any changed branch have a check that fails when the logic breaks? If not, name the missing case.
+## 2. Spawn the reviewer
 
-## Report
+One agent for an ordinary change: pass it the range, the changed-file list from `--stat`, and anything it would otherwise have to guess — the task this diff implements, and `.scratch/<slug>/plan.md` when one exists, so it can judge the change against what was decided rather than against its own idea of the goal.
 
-One line per finding, worst first:
+When `--stat` is large (roughly 20+ files or a few thousand changed lines), split the file list into coherent slices — by subsystem, not alphabetically, so that a changed signature and its callers land in the same slice — and spawn one agent per slice in a single message so they run in parallel. Tell each one its slice is a slice: cross-slice callers get reported as `risk`, not as confirmed bugs.
 
-```
-path/to/file.ts:42: <severity>: <problem>. <fix>.
-```
+The agent is `core:diff-reviewer` where another installed plugin also defines a `diff-reviewer`, and `diff-reviewer` otherwise. If no agent can be spawned, read `agents/diff-reviewer.md` from this plugin and work that checklist inline.
 
-Severity is `bug`, `risk`, or `nit`. Skip formatting nits unless they change meaning. Say "nothing found" plainly when nothing is found — inventing a finding to look thorough wastes the next reader's time.
+## 3. Relay, do not re-review
+
+Pass the findings through worst first, in the agent's own format, merged into one list when there were several agents. Drop exact duplicates; keep both lines when two agents found different problems on the same line.
+
+Do not re-derive a finding to check it — that reads the diff you just paid an agent to read. Verify only when a finding is load-bearing and the agent could not make it concrete: open that one file at that one line, nothing more.
+
+Then say what happens next: fix, or commit. Nothing found is a complete answer — report it plainly and stop.
