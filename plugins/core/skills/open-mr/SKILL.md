@@ -10,46 +10,74 @@ One skill for both hosts, because the difference between GitLab and GitHub here 
 
 Nothing below reads the full diff. The description comes from the decisions, and those are already written down.
 
-## 1. Confirm the branch is already pushed
+**Ask the host first, the clone second.** `glab` and `gh` already know which project this directory maps to, what its default branch is, which branches exist and which templates apply — including group- and instance-level templates that were never in the clone. Local `git` answers the same questions from a cache that can be stale, sparse or configured differently. So every step below runs the CLI first and drops to `git` and the filesystem only when the CLI is missing, unauthenticated, or errors.
+
+## 1. Pick the host
+
+One call per CLI. It proves authentication, resolves the project, and returns the default branch — all three things later steps need.
+
+```bash
+glab api projects/:id 2>/dev/null | jq -r '.path_with_namespace, .default_branch'
+gh api repos/:owner/:repo 2>/dev/null --jq '.full_name, .default_branch'
+```
+
+Whichever call prints a project is the host, and its `default_branch` is the base branch for step 6. Judge by the output, not by `$?` — a CLI piped into `jq` reports jq's exit status, so the wrong host's call still exits 0 while printing nothing. Do not re-derive the base from `git symbolic-ref refs/remotes/origin/HEAD` — that is a local guess written at clone time.
+
+Both calls failed → fall back to the clone:
+
+```bash
+git remote get-url origin
+glab auth status 2>&1 | head -5
+gh auth status 2>&1 | head -5
+```
+
+Hostname says gitlab → `glab`. Says github → `gh`. **Self-hosted GitLab will say neither** — the hostname is the company's — so take the CLI that is authenticated against the remote's hostname. Neither installed or authenticated → say which one is missing for this host and stop.
+
+## 2. Confirm the branch is already pushed
 
 **This skill does not push.** Pushing is the author's call, and it happens before this runs.
 
-Ask the remote, not the local config:
+Ask the host for the branch:
 
 ```bash
 branch=$(git branch --show-current)
-git ls-remote --heads origin "$branch"   # empty output = the remote has no such branch
 git rev-parse HEAD
+
+glab api "projects/:id/repository/branches/$branch" 2>/dev/null | jq -r .commit.id
+gh api "repos/:owner/:repo/branches/$branch" 2>/dev/null --jq .commit.sha
 ```
 
-`git status -sb`, `git rev-parse @{u}` and `@{u}..HEAD` all report **local tracking config**, not the remote. A branch pushed without `-u` is on the remote with no upstream set, and those checks call it "never pushed". Do not use them for this. `git ls-remote` queries the remote itself and is correct either way.
+No output means the host has no such branch (a `404`). The call failing for any other reason — network, token scope, no CLI — falls back to `git ls-remote --heads origin "$branch"`, which queries the remote directly and is equally correct.
 
-- **`ls-remote` printed nothing** → the branch really is not on the remote. Say so, give the exact command, stop:
+What does **not** answer this question: `git status -sb`, `git rev-parse @{u}` and `@{u}..HEAD`. They report **local tracking config**. A branch pushed without `-u` is on the remote with no upstream set, and those checks call it "never pushed". Never use them here.
+
+- **No branch on the host** → say so, give the exact command, stop:
   `git push -u origin $(git branch --show-current)`
 - **Remote SHA ≠ `HEAD`** → say which way. `git merge-base --is-ancestor <remote-sha> HEAD` succeeds → local commits are unpushed: name them (`git log <remote-sha>..HEAD --oneline`) and stop. An MR opened now describes work the host cannot see. Fails, or the SHA is unknown locally (`git cat-file -e <remote-sha>^{commit}`) → the remote has commits you do not: `git fetch origin "$branch"` and re-check.
 - **Uncommitted changes in the working tree** → one line of warning, not a stop. They are simply not in the MR.
 - **Remote SHA == `HEAD`** → continue.
 
-Then check the branch does not already have one: `glab mr view "$branch"` / `gh pr view "$branch"`. It does → report the URL and stop. Rewriting an existing description is `glab mr update` / `gh pr edit`, and it is the author's decision, not this skill's.
-
-## 2. Pick the host
-
-```bash
-git remote get-url origin
-```
-
-Hostname says gitlab → `glab`. Says github → `gh`. **Self-hosted GitLab will say neither** — the hostname is the company's. Then ask the CLIs which host they are authenticated for:
-
-```bash
-glab auth status 2>&1 | head -5
-gh auth status 2>&1 | head -5
-```
-
-Whichever is authenticated against the remote's hostname wins. Neither is installed or authenticated → say which one is missing for this host and stop.
+Then check the branch does not already have one: `glab mr list --source-branch "$branch"` / `gh pr list --head "$branch"`. It does → report the URL and stop. Rewriting an existing description is `glab mr update` / `gh pr edit`, and it is the author's decision, not this skill's.
 
 ## 3. Find the template
 
-The template belongs to the project, so it gets read, not carried here.
+The template belongs to the project, so it gets read, not carried here — and the project's own host is the one that knows which templates apply.
+
+GitLab serves them over the API, inherited group and instance templates included:
+
+```bash
+glab api "projects/:id/templates/merge_requests" | jq -r '.[].name'
+glab api "projects/:id/templates/merge_requests/<name>" | jq -r .content
+```
+
+GitHub has no template endpoint, so read the file out of the default branch instead:
+
+```bash
+gh api "repos/:owner/:repo/contents/.github/PULL_REQUEST_TEMPLATE" --jq '.[].path' 2>/dev/null
+gh api "repos/:owner/:repo/contents/.github/pull_request_template.md" --jq '.content' 2>/dev/null | base64 -d
+```
+
+Only if the host returns nothing usable, look in the working tree — it may simply be a branch that adds the template, or a sparse checkout:
 
 ```bash
 ls .gitlab/merge_request_templates/ .github/PULL_REQUEST_TEMPLATE/ 2>/dev/null
@@ -58,9 +86,9 @@ ls .gitlab/merge_request_template.md .github/PULL_REQUEST_TEMPLATE.md \
    docs/PULL_REQUEST_TEMPLATE.md 2>/dev/null
 ```
 
-Several templates in a directory → ask which one. One → use it. None → a minimal three-heading body, nothing more: **What**, **Why**, **How to verify**.
+Several templates → ask which one. One → use it. None anywhere → a minimal three-heading body, nothing more: **What**, **Why**, **How to verify**.
 
-Filling a template found on disk:
+Filling a template:
 
 - **Keep every heading**, in its order. A heading with no answer gets an explicit `n/a — <reason>`, never deletion; a reviewer checking the template is complete reads a missing section as a skipped one.
 - **Answer the checkboxes** rather than leaving them all unticked, and tick only what is actually true.
@@ -109,7 +137,7 @@ EOF
 )"
 ```
 
-Base branch: the repository default unless the user named one.
+Base branch: the `default_branch` the host returned in step 1, unless the user named one.
 
 **Draft by default.** This is outward-facing — it can notify a team — and marking it ready is one click the author owns. Do not use `--fill`: it generates the description from commit subjects, which is the work this skill exists to do properly.
 
