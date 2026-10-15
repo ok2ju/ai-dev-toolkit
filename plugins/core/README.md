@@ -8,6 +8,7 @@ Habits worth having in every repository.
 | Skill | `plan` | Turns the notes into an approach with runnable acceptance criteria in `plan.md`. |
 | Skill | `ship` | Builds the plan, verifies it against those criteria, keeps `state.md` current. |
 | Skill | `review-diff` | Reviews the working diff or branch before commit or PR. |
+| Skill | `review-mr` | Reviews an existing MR or PR, intent first, and posts the findings to it. |
 | Skill | `to-issues` | Breaks a plan or spec into independently-grabbable vertical-slice issues. |
 | Skill | `grill-me` | Interrogates a plan or decision one question at a time until the thinking holds. |
 | Skill | `handoff` | Compacts the conversation into a handoff document for a fresh agent. Slash command only. |
@@ -16,6 +17,7 @@ Habits worth having in every repository.
 | Skill | `copywriter` | Writes and edits prose in any language so it reads as written by a person, not generated. |
 | Skill | `automate-me` | Turns the user's own working conventions into a personal `-mode` skill. Slash command only. |
 | Agent | `diff-reviewer` | Reads a diff in its own context and returns severity-tagged findings. Spawned by `review-diff`. |
+| Agent | `mr-reviewer` | Reviews an existing MR or PR: intent first, code only once the intent holds. Spawned by `review-mr`. |
 
 The first three are one loop: **map → decide → build and prove**. State lives in files under `.scratch/<slug>/`, so the chain survives a lost context instead of relying on the model to remember where it was. The other eight plug into that loop or stand alone. Reading-heavy work is delegated: `explore` fans the codebase reading out to read-only subagents, `review-diff` hands the diff to `diff-reviewer`, and `research` sends a background agent to primary sources — so the conversation keeps its room for deciding and building.
 
