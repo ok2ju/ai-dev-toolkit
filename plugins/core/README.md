@@ -6,7 +6,7 @@ Habits worth having in every repository.
 |------|------|--------------|
 | Skill | `explore` | Maps the code a change will touch into `.scratch/<slug>/notes.md`. |
 | Skill | `plan` | Turns the notes into an approach with runnable acceptance criteria in `plan.md`. |
-| Skill | `ship` | Builds the plan, verifies it against those criteria, keeps `state.md` current. |
+| Skill | `ship` | Builds the plan, checks it against those criteria, keeps `state.md` current. |
 | Skill | `review-diff` | Reviews the working diff or branch before commit or PR. |
 | Skill | `review-mr` | Reviews an existing MR or PR, intent first, and posts the findings to it. |
 | Skill | `to-issues` | Breaks a plan or spec into independently-grabbable vertical-slice issues. |

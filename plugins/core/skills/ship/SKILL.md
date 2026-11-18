@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Build what plan.md describes, verify it against the plan's acceptance criteria, and keep .scratch/<slug>/state.md current. Use when the user says ship it, implement the plan, or continue an in-progress task.
+description: Build what plan.md describes, check it against the plan's acceptance criteria, and keep .scratch/<slug>/state.md current. Use when the user says ship it, implement the plan, or continue an in-progress task.
 argument-hint: "Which task or step should be built?"
 ---
 
@@ -47,7 +47,20 @@ What is stopping it and who can unblock it. "Nothing" is a valid entry.
 
 **Next** is the field that matters. Write it so a fresh session with no memory of this conversation can act on it without re-deriving anything.
 
-## 4. Verify against the criteria, not against your impression
+**Write it for an agent.** The next `ship` run reads this file and cannot ask you what you meant. Write in the strict register of ASD-STE100 Simplified Technical English:
+
+- One instruction or one fact per sentence. 25 words max.
+- Instructions in the imperative: "Run `npm test`", not "tests should be run".
+- Active voice with a named actor: "`ship` writes `state.md`", not "`state.md` is written".
+- One term per concept. Pick a name for a thing and use that exact name every time. Do not rotate synonyms for variety.
+- Single plain verbs, not phrasal verbs: "start", not "spin up".
+- No semicolons. Split the sentence in two.
+- State every condition and scope limit. Never shorten a sentence by dropping one.
+- Keep a hedge only when the doubt is real, and name what it rests on. One hedge, not a stack.
+
+Code, paths, commands, and quoted errors stay verbatim.
+
+## 4. Check against the criteria, not against your impression
 
 Walk the plan's **Acceptance criteria** one at a time. For each: run the check, and record the actual output in `state.md`.
 

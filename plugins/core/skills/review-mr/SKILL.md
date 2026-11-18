@@ -37,7 +37,7 @@ The agent is `core:mr-reviewer` where another installed plugin also defines an `
 
 Show the findings worst first, in the agent's own format: intent verdict, then `MR:` lines, then `path:line` lines. Merged into one list when there were several agents; drop exact duplicates.
 
-Do not re-review. Verify only a load-bearing finding the agent could not make concrete: that one file at that one line.
+Do not re-review. Check it yourself only for a load-bearing finding the agent could not make concrete: that one file at that one line.
 
 ## 4. Post
 

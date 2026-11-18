@@ -1,6 +1,6 @@
 ---
 name: house-rules
-description: Write the coding house rules into this project's CLAUDE.md — assumptions stated, least code, surgical diffs, verifiable goals. Use when setting up a repository, or when the user asks to add coding principles or behavioural guidelines to CLAUDE.md.
+description: Write the coding house rules into this project's CLAUDE.md — assumptions stated, least code, surgical diffs, checkable goals. Use when setting up a repository, or when the user asks to add coding principles or behavioural guidelines to CLAUDE.md.
 disable-model-invocation: true
 ---
 
@@ -38,7 +38,7 @@ These bias toward caution over speed. On a trivial task, use judgement — they 
 
 **Surgical diffs.** Every changed line traces to the request. Do not improve adjacent code, comments, or formatting, and match the existing style even where you would choose differently. Unrelated dead code gets mentioned, not deleted — but imports and helpers that *your* change orphaned are yours to remove.
 
-**Verifiable goals.** Turn the task into a check before writing code: "add validation" becomes "tests for invalid input, then make them pass"; "fix the bug" becomes "a test that reproduces it, then make it pass". Weak criteria — "make it work" — cost a clarification round later.
+**Checkable goals.** Turn the task into a check before writing code: "add validation" becomes "tests for invalid input, then make them pass"; "fix the bug" becomes "a test that reproduces it, then make it pass". Weak criteria — "make it work" — cost a clarification round later.
 
 **Fix causes, not symptoms.** A report names a symptom. Before editing, grep the callers of the function you are about to touch: one guard in the shared path is a smaller diff than a guard in every caller, and patching only the path the report named leaves its siblings broken.
 

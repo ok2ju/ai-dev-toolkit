@@ -33,7 +33,7 @@ gh auth status 2>&1 | head -5
 
 Hostname says gitlab → `glab`. Says github → `gh`. **Self-hosted GitLab will say neither** — the hostname is the company's — so take the CLI that is authenticated against the remote's hostname. Neither installed or authenticated → say which one is missing for this host and stop.
 
-## 2. Confirm the branch is already pushed
+## 2. Check that the branch is already pushed
 
 **This skill does not push.** Pushing is the author's call, and it happens before this runs.
 

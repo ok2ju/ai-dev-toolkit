@@ -47,6 +47,8 @@ Everything lives in one directory per task, named by a kebab-case slug:
 
 The immutability split is the part that earns its keep. `plan.md` frozen means it stays a record of *what was decided and why*, including the options rejected — so a later session cannot quietly re-open a settled question. `state.md` mutable means reality has somewhere to go: deviations get recorded rather than back-fitted into the plan until the plan agrees with whatever got built.
 
+The reader of `notes.md`, `plan.md`, `state.md`, and a `handoff` document is another agent that cannot ask what a sentence meant. So `explore`, `plan`, `ship`, and `handoff` write them in the strict register of ASD-STE100 Simplified Technical English: one instruction per sentence, imperative, active voice, one term per concept. Each skill carries the rule list. The skills and agents follow one vocabulary rule of their own: "check" means the agent examines something, and "confirm" means the user approves.
+
 `.scratch/` is git-ignored. These are working notes; the durable output is the diff, the commits, and whatever ADRs the decisions deserve.
 
 ---
@@ -196,7 +198,7 @@ Install:
 
 Then `/explore <task>` in any repository, or nothing at all for an **S**. Names collide across plugins, so if another installed plugin also defines `plan` or `ship`, address them as `core:plan` and `core:ship`.
 
-**Once per repository, run `/house-rules`.** It writes a marked block into that project's `CLAUDE.md` holding the standing rules — assumptions stated, least code, surgical diffs, verifiable goals, causes over symptoms — plus the one sizing rule worth enforcing, and it ignores `.scratch/`. Rules kept in a document are rules nobody re-reads; rules in `CLAUDE.md` are in context before the mistake instead of after it.
+**Once per repository, run `/house-rules`.** It writes a marked block into that project's `CLAUDE.md` holding the standing rules — assumptions stated, least code, surgical diffs, checkable goals, causes over symptoms — plus the one sizing rule worth enforcing, and it ignores `.scratch/`. Rules kept in a document are rules nobody re-reads; rules in `CLAUDE.md` are in context before the mistake instead of after it.
 
 That block is charged on every request in the project, which is the reason it is short. It is also the only durable way to share any of this with teammates: `~/.claude/CLAUDE.md` is per-machine, and a plugin cannot ship memory — a committed `CLAUDE.md` travels with the clone.
 

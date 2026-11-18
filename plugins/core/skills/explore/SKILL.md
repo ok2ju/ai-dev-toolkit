@@ -85,6 +85,19 @@ Conventions, ADRs, contracts that cannot move, migration rules, anything with a 
 Decisions that belong to the user. Each with your recommended answer.
 ```
 
+**Write it for an agent.** `plan` and `ship` read this file and cannot ask you what you meant. Write in the strict register of ASD-STE100 Simplified Technical English:
+
+- One instruction or one fact per sentence. 25 words max.
+- Instructions in the imperative: "Run `npm test`", not "tests should be run".
+- Active voice with a named actor: "`ship` writes `state.md`", not "`state.md` is written".
+- One term per concept. Pick a name for a thing and use that exact name every time. Do not rotate synonyms for variety.
+- Single plain verbs, not phrasal verbs: "start", not "spin up".
+- No semicolons. Split the sentence in two.
+- State every condition and scope limit. Never shorten a sentence by dropping one.
+- Keep a hedge only when the doubt is real, and name what it rests on. One hedge, not a stack.
+
+Code, paths, commands, and quoted errors stay verbatim.
+
 ## 5. Do not fill gaps with plausible text
 
 Anything nobody read goes in **Open questions**, not in **Flow** — yours and the agents' gaps alike. A note that says "not read: the retry path in worker.ts" is useful; a confident description of a file you skimmed is worse than no note at all, because the next phase cannot tell the difference.

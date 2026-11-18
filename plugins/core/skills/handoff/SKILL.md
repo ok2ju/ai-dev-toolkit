@@ -14,3 +14,16 @@ Do not duplicate content already captured in other artifacts (specs, plans, ADRs
 Redact any sensitive information, such as API keys, passwords, or personally identifiable information.
 
 If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
+
+**Write it for an agent.** The next agent reads this document and cannot ask you what you meant. Write in the strict register of ASD-STE100 Simplified Technical English:
+
+- One instruction or one fact per sentence. 25 words max.
+- Instructions in the imperative: "Run `npm test`", not "tests should be run".
+- Active voice with a named actor: "`ship` writes `state.md`", not "`state.md` is written".
+- One term per concept. Pick a name for a thing and use that exact name every time. Do not rotate synonyms for variety.
+- Single plain verbs, not phrasal verbs: "start", not "spin up".
+- No semicolons. Split the sentence in two.
+- State every condition and scope limit. Never shorten a sentence by dropping one.
+- Keep a hedge only when the doubt is real, and name what it rests on. One hedge, not a stack.
+
+Code, paths, commands, and quoted errors stay verbatim.

@@ -28,7 +28,7 @@ Write down the options you rejected and why, one line each. This is the section 
 
 ## 3. Make the acceptance criteria runnable
 
-This is the load-bearing part of the whole workflow. Verification is not a phase that happens later; it is this list, written before the code, and `ship` executes it.
+This is the load-bearing part of the whole workflow. Checking is not a phase that happens later; it is this list, written before the code, and `ship` executes it.
 
 A criterion is a check another person could run without asking you what you meant:
 
@@ -70,6 +70,19 @@ The chosen shape, in prose. Name each file that changes and what its change does
 ## Out of scope
 What a reader would reasonably assume is included and is not.
 ```
+
+**Write it for an agent.** `ship` reads this file and cannot ask you what you meant. Write in the strict register of ASD-STE100 Simplified Technical English:
+
+- One instruction or one fact per sentence. 25 words max.
+- Instructions in the imperative: "Run `npm test`", not "tests should be run".
+- Active voice with a named actor: "`ship` writes `state.md`", not "`state.md` is written".
+- One term per concept. Pick a name for a thing and use that exact name every time. Do not rotate synonyms for variety.
+- Single plain verbs, not phrasal verbs: "start", not "spin up".
+- No semicolons. Split the sentence in two.
+- State every condition and scope limit. Never shorten a sentence by dropping one.
+- Keep a hedge only when the doubt is real, and name what it rests on. One hedge, not a stack.
+
+Code, paths, commands, and quoted errors stay verbatim.
 
 Keep it shorter than the diff it describes. A plan longer than its own implementation is a document that will be skimmed instead of followed.
 

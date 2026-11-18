@@ -49,6 +49,6 @@ path/to/file.ts:42: <severity>: <problem>. <fix>.
 
 Severity is `bug`, `risk`, or `nit`. Skip formatting nits unless they change meaning.
 
-Every finding names a concrete failure — the input or state that makes it go wrong. A finding you cannot make concrete is a guess: drop it, or tag it `risk` and say what you could not verify.
+Every finding names a concrete failure — the input or state that makes it go wrong. A finding you cannot make concrete is a guess: drop it, or tag it `risk` and say what you could not check.
 
 End with one line naming the scope you actually reviewed (range or files, and anything skipped). Say "nothing found" plainly when nothing is found — inventing a finding to look thorough wastes the next reader's time.

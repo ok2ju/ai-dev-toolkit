@@ -23,7 +23,7 @@ Default scope is `HEAD`. Use the branch range when the user says PR, branch, or 
 
 One agent for an ordinary change: pass it the range, the changed-file list from `--stat`, and anything it would otherwise have to guess — the task this diff implements, and `.scratch/<slug>/plan.md` when one exists, so it can judge the change against what was decided rather than against its own idea of the goal.
 
-When `--stat` is large (roughly 20+ files or a few thousand changed lines), split the file list into coherent slices — by subsystem, not alphabetically, so that a changed signature and its callers land in the same slice — and spawn one agent per slice in a single message so they run in parallel. Tell each one its slice is a slice: cross-slice callers get reported as `risk`, not as confirmed bugs.
+When `--stat` is large (roughly 20+ files or a few thousand changed lines), split the file list into coherent slices — by subsystem, not alphabetically, so that a changed signature and its callers land in the same slice — and spawn one agent per slice in a single message so they run in parallel. Tell each one its slice is a slice: cross-slice callers get reported as `risk`, not as bugs.
 
 The agent is `core:diff-reviewer` where another installed plugin also defines a `diff-reviewer`, and `diff-reviewer` otherwise. If no agent can be spawned, read `agents/diff-reviewer.md` from this plugin and work that checklist inline.
 
@@ -31,6 +31,6 @@ The agent is `core:diff-reviewer` where another installed plugin also defines a 
 
 Pass the findings through worst first, in the agent's own format, merged into one list when there were several agents. Drop exact duplicates; keep both lines when two agents found different problems on the same line.
 
-Do not re-derive a finding to check it — that reads the diff you just paid an agent to read. Verify only when a finding is load-bearing and the agent could not make it concrete: open that one file at that one line, nothing more.
+Do not re-derive a finding to check it — that reads the diff you just paid an agent to read. Check it yourself only when a finding is load-bearing and the agent could not make it concrete: open that one file at that one line, nothing more.
 
 Then say what happens next: fix, or commit. Nothing found is a complete answer — report it plainly and stop.

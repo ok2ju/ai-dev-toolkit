@@ -45,7 +45,7 @@ Survey recent conversations within that scope for recurring patterns. Run parall
 
 - Response preferences (length, tone, format, "dumb it down" corrections)
 - Delegation habits (subagents, models, specialized workflows, parallelism)
-- Verification posture (what "done" means, unit tests vs live repro, reviewers)
+- Checking posture (what "done" means, unit tests vs live repro, reviewers)
 - Code and prose discipline (style, principles cited, lint/format tools)
 - Process conventions (worktrees, commits, PRs, review/merge tooling)
 - Meta preferences (fixing skills mid-task, proposing new ones)
@@ -69,7 +69,7 @@ Group the combined signals into sections. Common ones (use only what applies):
 - **Understand first**: which skills to reach for when scoping or investigating a change.
 - **Subagents**: default, parallelism, model-to-task, specialized workflows.
 - **Prose / code discipline**: principles, lint tools, style guides.
-- **Review and verify**: repro posture, verification skills, live-testing tools.
+- **Review and check**: repro posture, checking skills, live-testing tools.
 - **Process**: git worktrees, commits, PRs, review/merge tooling.
 - **Skills**: skill-authoring habits, fix-the-skill-first, proposing new skills.
 

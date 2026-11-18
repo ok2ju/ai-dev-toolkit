@@ -103,4 +103,4 @@ Line numbers are the MR head's (`git show FETCH_HEAD:<path>`), so they can be po
 
 Intent findings first, then code findings, worst first within each. Severity is `bug`, `risk`, or `nit`; skip formatting nits unless they change meaning.
 
-Every finding names a concrete failure — the input or state that makes it go wrong, or for intent, the requirement the MR misses. A finding you cannot make concrete is a guess: drop it, or tag it `risk` and say what you could not verify. "Nothing found" is a complete answer; say it plainly.
+Every finding names a concrete failure — the input or state that makes it go wrong, or for intent, the requirement the MR misses. A finding you cannot make concrete is a guess: drop it, or tag it `risk` and say what you could not check. "Nothing found" is a complete answer; say it plainly.
