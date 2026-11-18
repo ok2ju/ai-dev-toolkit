@@ -15,11 +15,14 @@ Habits worth having in every repository.
 | Skill | `research` | Sends a background agent to answer a question from primary sources and write up the findings. |
 | Skill | `house-rules` | Writes the standing coding rules into a project's `CLAUDE.md`, once per repository. Slash command only. |
 | Skill | `copywriter` | Writes and edits prose in any language so it reads as written by a person, not generated. |
+| Skill | `eli5` | Explains any topic to a total beginner as one HTML page of big pictures and few words. |
+| Skill | `prove-it` | Proves a claim works by running the real thing and quoting the output, never a proxy like "it compiles". |
+| Skill | `statechart` | Draws how a system moves between states from the real code, and finds dead ends and paths that break a rule. |
 | Skill | `automate-me` | Turns the user's own working conventions into a personal `-mode` skill. Slash command only. |
 | Agent | `diff-reviewer` | Reads a diff in its own context and returns severity-tagged findings. Spawned by `review-diff`. |
 | Agent | `mr-reviewer` | Reviews an existing MR or PR: intent first, code only once the intent holds. Spawned by `review-mr`. |
 
-The first three are one loop: **map → decide → build and prove**. State lives in files under `.scratch/<slug>/`, so the chain survives a lost context instead of relying on the model to remember where it was. The other eight plug into that loop or stand alone. Reading-heavy work is delegated: `explore` fans the codebase reading out to read-only subagents, `review-diff` hands the diff to `diff-reviewer`, and `research` sends a background agent to primary sources — so the conversation keeps its room for deciding and building.
+The first three are one loop: **map → decide → build and prove**. State lives in files under `.scratch/<slug>/`, so the chain survives a lost context instead of relying on the model to remember where it was. The other eleven plug into that loop or stand alone. Reading-heavy work is delegated: `explore` fans the codebase reading out to read-only subagents, `review-diff` hands the diff to `diff-reviewer`, and `research` sends a background agent to primary sources — so the conversation keeps its room for deciding and building.
 
 ```
 /explore <task> → /plan → /ship → /review-diff

@@ -145,6 +145,9 @@ Off the line, by trigger rather than by order:
 | `handoff` | Any time the context is running out. `notes.md` + `plan.md` + `state.md` + a handoff document beats a full context guessing at its own earlier reasoning. |
 | `house-rules` | Once, when a repository first starts using any of this. Writes the standing rules into that project's `CLAUDE.md`, so they are in context before they are needed rather than after. |
 | `copywriter` | Any time prose leaves the session for a human reader — a PR description, release notes, docs, UI strings. Not code, not commit messages. |
+| `eli5` | Any time you, or someone you are explaining to, knows nothing about a topic. Draws one HTML page of big pictures with a dozen words per panel, published as an Artifact when that tool is available. |
+| `prove-it` | Any time something is called done or working and nobody has watched it work. Pins the claim as "do A, observe B", runs a check that can fail against the real artifact, and reports proven / not proven / cannot prove here with the decisive output line. `ship` step 4 is the same discipline applied to plan criteria. |
+| `statechart` | During `explore` or before `plan`, when the change touches a status, lifecycle, or multi-step flow. Builds a transition table from every write to the state, draws it as a Mermaid statechart, and reports unreachable states, dead ends, unhandled events, and the shortest path to each rule break, replayed against the real code. |
 | `automate-me` | Once per person, to turn their working conventions into a `-mode` skill other agents then follow. Mines your own transcripts, so it asks before it commits anything. |
 
 ---

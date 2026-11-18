@@ -1,7 +1,7 @@
 {
   "name": "core",
-  "description": "A tiered explore-plan-ship workflow with state on disk, plus the daily drivers: diff and MR review, conventional commits, GitLab and GitHub merge requests, plan-to-issues breakdown, plan grilling, session handoff, primary-source research, project house rules, human-sounding copywriting, and personal -mode skill authoring.",
-  "version": "0.10.0",
+  "description": "A tiered explore-plan-ship workflow with state on disk, plus the daily drivers: diff and MR review, conventional commits, GitLab and GitHub merge requests, plan-to-issues breakdown, plan grilling, session handoff, primary-source research, project house rules, human-sounding copywriting, picture-first explain-like-I'm-five pages, prove-it-works checks against the real artifact, statecharts of how a system moves between states, and personal -mode skill authoring.",
+  "version": "0.11.0",
   "author": {
     "name": "ok2ju"
   }
