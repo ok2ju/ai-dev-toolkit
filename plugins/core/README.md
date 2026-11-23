@@ -55,7 +55,7 @@ Optional file at a repository's root, written by its code owners. `review-diff`,
 3
 ```
 
-**Skip** paths get no findings. A change under a **Deep paths** entry runs the `deep` tier. **Nit cap** limits `nit` lines per report (default 3). When the same finding keeps coming back across reviews, write the rule here or in `CLAUDE.md` instead of fixing it again each round.
+**Skip** paths get no findings. A change under a **Deep paths** entry runs the `deep` tier and gets `risk: high` in the report, which suggests two human approvals; CI/CD pipeline files get `high` too, docs-and-tests-only changes get `low`, everything else `medium`. **Nit cap** limits `nit` lines per report (default 3). When the same finding keeps coming back across reviews, write the rule here or in `CLAUDE.md` instead of fixing it again each round.
 
 ## Install
 

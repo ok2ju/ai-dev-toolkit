@@ -40,7 +40,7 @@ Check `$head` matches the head SHA from the view. `--stat` only — the size and
 - Round 2 or 3 → pass the last head to the finders as a **delta**. Review the whole MR instead, still deduplicated against the file, when the head was rebased (`git merge-base --is-ancestor <last_head> "$head"` fails) or the base moved (`$base` differs from the recorded one — the target branch was merged in).
 - Three rounds done → do not run a fourth. List the findings recorded in the file and tell the user the approach needs another look.
 
-**Tier.** As in `review-diff`: the user's choice, else `quick` under 50 changed lines or docs-only, `deep` when a changed path matches **Deep paths** in `git show "$head":REVIEW.md`, `standard` otherwise.
+**Tier.** As in `review-diff`: the user's choice, else `quick` under 50 changed lines or docs-only, `deep` when a changed path matches **Deep paths** in `git show "$head":REVIEW.md`, `standard` otherwise. **Risk** follows `review-diff` step 2 too, from the `--stat` file list and the same `REVIEW.md`.
 
 ## 2. Find
 
@@ -72,7 +72,7 @@ Do not re-review. Check it yourself only for a load-bearing finding the agents c
 
 Runs on every tier and every path, including `quick`, the inline fallback, and intent `wrong`.
 
-Drop any finding — `MR:` lines included — already recorded in the state file. Then show: count line first, then the intent verdict, `MR:` lines, and `path:line` lines worst first (`important`, `pre-existing`, `nit`). At most 3 `nit` lines, or the `REVIEW.md` cap; say how many were cut. Append the round to the state file: round, tier, scope, snapshot, base, kept findings.
+Drop any finding — `MR:` lines included — already recorded in the state file. Then show: count line first, then the risk line, then the intent verdict, `MR:` lines, and `path:line` lines worst first (`important`, `pre-existing`, `nit`). At most 3 `nit` lines, or the `REVIEW.md` cap; say how many were cut. Append the round to the state file: round, tier, scope, snapshot, base, kept findings.
 
 ## 5. Post
 
@@ -92,7 +92,7 @@ Never approve, request changes, resolve threads, or merge. Comments only.
 
 **Where each finding goes**
 
-- `MR:` findings, and the intent verdict → one summary comment.
+- `MR:` findings, the intent verdict, and the risk line → one summary comment.
 - Intent `wrong` → the summary comment only, saying why the approach should be revisited. No inline comments; the code findings were discarded.
 - `path:line` findings → inline, on that line of the MR head. A line outside every diff hunk cannot take an inline comment on either host: put it in the summary as `path:line — ...`.
 

@@ -54,6 +54,14 @@ The user named one → use it. Otherwise:
 - `deep` — any changed path matches a **Deep paths** entry in `REVIEW.md`.
 - `standard` — everything else.
 
+**Risk.** Set it from the changed-file list, never from who wrote the change. It is the number of human approvals the change deserves:
+
+- `high` — a changed path matches **Deep paths** in `REVIEW.md`, or is a CI/CD pipeline file (`.github/workflows/`, `.gitlab-ci.yml`, `Jenkinsfile`). Suggests 2 approvals.
+- `low` — every changed path is docs, comments, or tests. Suggests none once the review is clean.
+- `medium` — everything else. Suggests 1 approval.
+
+The reason names the path that decided it. The risk is advice: CODEOWNERS and branch protection enforce approvals, not this skill. It reads paths only, so an additive change behind a flag still shows as `medium`.
+
 ## 3. Find
 
 Spawn the finders in one message so they run in parallel. Each gets the scope (the delta range on round 2+, with the full scope named for context), the changed-file list, its lens, and anything it would otherwise guess — the task this diff implements, and `.scratch/<slug>/plan.md` when one exists, so it judges the change against what was decided rather than its own idea of the goal.
@@ -85,10 +93,11 @@ Do not re-derive a vote to check it. That reads the diff you just paid the agent
 
 ## 5. Report
 
-Runs on every tier, `quick` and the inline fallback included. Drop any finding already recorded in the state file — step 4 did this for the other tiers. Then start with the count, then the findings worst first — `important`, then `pre-existing`, then `nit` — in the finder's line format. Keep at most 3 `nit` lines, or the cap `REVIEW.md` sets; say how many were cut.
+Runs on every tier, `quick` and the inline fallback included. Drop any finding already recorded in the state file — step 4 did this for the other tiers. Then start with the count, then the risk line, then the findings worst first — `important`, then `pre-existing`, then `nit` — in the finder's line format. Keep at most 3 `nit` lines, or the cap `REVIEW.md` sets; say how many were cut.
 
 ```
 2 findings (1 important, 1 pre-existing) — round 2, standard, delta since 3f9c2e1. 4 candidates dropped by verifiers.
+risk: medium — product code in src/orders.ts, no Deep path or pipeline file. Suggests 1 approval.
 src/orders.ts:42: important: ...
 src/cart.ts:88: pre-existing: ...
 ```
