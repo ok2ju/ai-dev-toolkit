@@ -36,6 +36,7 @@ Everything lives in one directory per task, named by a kebab-case slug:
 ├── notes.md    # explore  → what exists today
 ├── plan.md     # plan     → the approach and its acceptance criteria
 ├── state.md    # ship     → what is built, what is next, what deviated
+├── review.md   # review-diff, review-mr → one block per review round
 └── issues/     # to-issues → vertical slices, for L-tier work only
 ```
 
@@ -44,6 +45,7 @@ Everything lives in one directory per task, named by a kebab-case slug:
 | `notes.md` | `explore` | `plan`, `ship` | Append-only once `plan` starts. |
 | `plan.md` | `plan` | `ship` | **Frozen** once `ship` starts. |
 | `state.md` | `ship` | `explore`, `ship`, `handoff` | Rewritten continuously. The resume point. |
+| `review.md` | `review-diff`, `review-mr` | the same skills, next round | Append-only, one block per round. Lets a later round review only the delta and never repeat a finding. Without a task slug it lives in `.scratch/review-<branch>/` or `.scratch/mr-<iid>/`. |
 
 The immutability split is the part that earns its keep. `plan.md` frozen means it stays a record of *what was decided and why*, including the options rejected — so a later session cannot quietly re-open a settled question. `state.md` mutable means reality has somewhere to go: deviations get recorded rather than back-fitted into the plan until the plan agrees with whatever got built.
 
@@ -59,7 +61,7 @@ Size the task yourself, then run that much process and no more.
 
 | Tier | Looks like | What you run |
 |------|-----------|--------------|
-| **S** | Cause already known, one or two files, no new interface | Nothing. Ask for the fix, then `review-diff`. No artifacts. |
+| **S** | Cause already known, one or two files, no new interface | Nothing. Ask for the fix, then `review-diff`. No artifacts beyond the review's own round log. |
 | **M** | Three to ten files, one subsystem, real unknowns | `explore` → `plan` → `ship` → `review-diff` |
 | **L** | New subsystem, migration, schema or contract change, multi-session | `explore` → `plan` → `grill-me` → `to-issues` → `ship` per issue |
 
@@ -141,7 +143,7 @@ Off the line, by trigger rather than by order:
 | `research` | During `explore`, for anything outside this repo — library behaviour, an API contract, a spec. Runs as a background agent, so it costs you almost no context, and writes one file: Markdown, or a self-contained HTML report on request. |
 | `grill-me` | After `plan`, before `ship`, when the plan rests on decisions that would collapse if one flipped. |
 | `to-issues` | After `plan`, for **L** only, when slices leave your session for other people or other days. |
-| `review-diff` | At the end of `ship`, before every commit or PR. Also the entire process for **S**. Spawns the `diff-reviewer` agent, so the diff is read in its own context and only the findings come back — which is what makes a review affordable at the end of a long session, the one time it is always needed. |
+| `review-diff` | At the end of `ship`, before every commit or PR. Also the entire process for **S**. Spawns `diff-reviewer` finders (one per lens: correctness, failure, security), then three `finding-verifier` agents that vote on every finding, so only findings most of them agree are real come back (the `quick` tier, for diffs under 50 lines, skips the verifiers), tagged `important`, `nit`, or `pre-existing`. The diff is read in the agents' own context — which is what makes a review affordable at the end of a long session, the one time it is always needed. Later rounds review only what changed since the last one, and a fourth round is refused: the approach needs another look. |
 | `commit` | Every commit. Refuses to commit onto `main` and creates the work branch instead, requires a ticket number — asking for it rather than guessing — reads the convention out of this repository's own `git log` instead of imposing one, and bans AI attribution from the message. Runs in this thread on purpose: an agent with a clean context does not know why the change was made, and that is the whole body. |
 | `open-mr` | Once the branch is pushed — it does not push. Detects GitLab or GitHub from the remote, fills the project's own MR template from `plan.md` and `state.md` rather than from the diff, and opens a draft. |
 | `handoff` | Any time the context is running out. `notes.md` + `plan.md` + `state.md` + a handoff document beats a full context guessing at its own earlier reasoning. |
@@ -160,7 +162,7 @@ Off the line, by trigger rather than by order:
 
 > the date filter drops the last day of the month
 
-One comparison using `<` where it needs `<=`. Fix it, add the failing case as a test, `/review-diff`. No `.scratch/` directory, because nothing here needs to survive the session. Reaching for `explore` on this is the mistake the tier table exists to prevent.
+One comparison using `<` where it needs `<=`. Fix it, add the failing case as a test, `/review-diff`. No `notes.md`, `plan.md`, or `state.md`, because nothing here needs to survive the session; the only `.scratch/` file is the review's round log. Reaching for `explore` on this is the mistake the tier table exists to prevent.
 
 **M — a feature inside one subsystem.**
 

@@ -5,8 +5,8 @@ description: >
   request, given by number or URL. Judges the intent first — is the stated
   problem real, is this the right fix for it, does the diff do what the
   description says and nothing else — and reviews the code only once the
-  intent holds. Returns an intent verdict plus one severity-tagged line per
-  finding. Use for "review MR !123", "review PR #45", "review this MR <url>".
+  intent holds. Returns an intent verdict plus one tagged line per finding,
+  which review-mr sends to finding-verifier before posting. Use for "review MR !123", "review PR #45", "review this MR <url>".
   For local changes not yet pushed, use diff-reviewer instead. Spawned by
   review-mr, which posts the findings. Does not comment, approve, merge, or
   edit.
@@ -44,22 +44,32 @@ gh pr view <n> --json title,body,baseRefName,headRefName,headRefOid,commits,file
 gh issue view <n>
 ```
 
-Then bring the MR head into the local clone without touching the working tree:
+Then get the MR head into the local clone without touching the working tree. When the parent passes `<head>` and `<base>` SHAs, it has already fetched them: do not fetch, because other agents run beside you and a fetch rewrites the shared `FETCH_HEAD`. Otherwise fetch into named refs:
 
 ```bash
 git fetch origin <target_branch>
-git fetch origin refs/merge-requests/<iid>/head   # GitLab
-git fetch origin pull/<n>/head                     # GitHub
-git diff --stat origin/<target_branch>...FETCH_HEAD
+git fetch origin +refs/merge-requests/<iid>/head:refs/review/mr-<iid>   # GitLab
+git fetch origin +pull/<n>/head:refs/review/pr-<n>                      # GitHub
+head=$(git rev-parse refs/review/mr-<iid>)       # or refs/review/pr-<n>
+base=$(git merge-base origin/<target_branch> "$head")
+git diff --stat "$base" "$head"
 ```
 
-Fetch the head last, in its own call: with several refs in one fetch, `FETCH_HEAD` resolves to the first. Check `git rev-parse FETCH_HEAD` matches the head SHA from the view.
+Check `<head>` matches the head SHA from the view. Every `<head>` and `<base>` below is one of these SHAs, never `FETCH_HEAD`.
 
-Read the MR's files with `git show FETCH_HEAD:<path>` and search them with `git grep <pattern> FETCH_HEAD`. `Read` and `Grep` see the working tree, which is whatever branch happens to be checked out — use them only for files the MR does not touch, and say so if the checkout differs from the target branch.
+Read the MR's files with `git show <head>:<path>` and search them with `git grep <pattern> <head>`. `Read` and `Grep` see the working tree, which is whatever branch happens to be checked out — use them only for files the MR does not touch, and say so if the checkout differs from the target branch.
 
-If the MR belongs to a repository other than this clone, fall back to `glab mr diff` / `gh pr diff` and the API. Caller checks then cannot be made locally: report them as `risk`, not `bug`.
+If the MR belongs to a repository other than this clone, fall back to `glab mr diff` / `gh pr diff` and the API. Caller checks then cannot be made locally: name them in the scope line as not checked.
 
 Read-only throughout: no checkout, no comment, no approve, no merge, no edit. `git fetch` is the one write, and it touches refs only.
+
+**Parent instructions.** The parent may give you:
+
+- a **lens** — `correctness` (code items 1–2), `failure` (items 3, 5, 6), or `security` (item 4). Other finders cover the other lenses, so stay inside yours. No lens → all six.
+- **skip intent** — another finder judges intent. Go straight to phase 2 and leave the `intent:` line out of the report.
+- a **delta** — `<last_head>` from an earlier round. Review only `git diff <last_head> <head> -- <files>`, where `<files>` is `git diff --name-only <base> <head>` — the MR's own files, so commits merged in from the target branch stay out. Read the code around it only to follow the logic. Phase 1 still reads the whole MR.
+
+Read `REVIEW.md` and `CLAUDE.md` at `<head>` when they exist (`git show <head>:REVIEW.md`). `REVIEW.md` says what failure looks like in this repo and which paths to skip. Code that breaks a convention in either file is a finding.
 
 ## 1. Intent
 
@@ -82,11 +92,15 @@ Verdict is one of:
 Only after a `sound` or `questionable` verdict. Read the whole change before judging any part of it. Judge against the conventions of the surrounding files, not a house style you brought with you.
 
 1. **Correctness** — trace one real input through each changed path. Off-by-one, inverted condition, `null` reaching a `.field`, a missing `await`.
-2. **Callers** — for every changed signature or behaviour, `git grep` the callers at `FETCH_HEAD`. A fix applied to one call site and not its siblings is half a fix.
-3. **Errors and data loss** — a `catch` that swallows, retry without a limit, a write with no rollback, a migration with no way back.
+2. **Callers** — for every changed signature or behaviour, `git grep` the callers at `<head>`. A fix applied to one call site and not its siblings is half a fix.
+3. **Errors, data loss, concurrency** — a `catch` that swallows, retry without a limit, a write with no rollback, a migration with no way back, shared state read and written without a lock.
 4. **Secrets and inputs** — tokens, keys, internal URLs, customer data in fixtures. Unvalidated input crossing a trust boundary.
 5. **Leftovers** — debug prints, commented-out code, `TODO` with no owner.
 6. **Tests** — does each changed branch have a check that fails when the logic breaks? If not, name the missing case.
+
+**Bug class.** When a problem is a pattern, `git grep` every instance at `<head>` and report it once: the first location leads the line, the rest go in `Also at: <path:line>, ...` before `Fix:`.
+
+A slice of a large MR → name callers in other slices in the scope line as not checked.
 
 Diff too large to hold → file by file, largest first, and list what you did not reach.
 
@@ -94,13 +108,17 @@ Diff too large to hold → file by file, largest first, and list what you did no
 
 ```
 intent: <sound|questionable|wrong> — <what the MR does, and whether that is the right thing to do>
-MR: <severity>: <intent problem>. <fix>.
-path/to/file.ts:42: <severity>: <problem>. <fix>.
-scope: <MR ref, base...head SHAs, files skipped>
+MR: <tag>: <intent problem>. Fix: <fix>.
+path/to/file.ts:42: <tag>: <problem>. Fails when: <input or state>. Fix: <fix>.
+scope: <MR ref, base...head SHAs, lens, files skipped or not checkable>
 ```
 
-Line numbers are the MR head's (`git show FETCH_HEAD:<path>`), so they can be posted as inline comments. A finding about removed code cites the nearest head line. The scope line carries the head SHA you reviewed.
+Line numbers are the MR head's (`git show <head>:<path>`), so they can be posted as inline comments. A finding about removed code cites the nearest head line. The scope line carries the head SHA you reviewed.
 
-Intent findings first, then code findings, worst first within each. Severity is `bug`, `risk`, or `nit`; skip formatting nits unless they change meaning.
+Intent findings first, then code findings, worst first within each. Tag is one of:
 
-Every finding names a concrete failure — the input or state that makes it go wrong, or for intent, the requirement the MR misses. A finding you cannot make concrete is a guess: drop it, or tag it `risk` and say what you could not check. "Nothing found" is a complete answer; say it plainly.
+- `important` — the MR introduces wrong behaviour, data loss, a security hole, a crash, or leaves a changed branch untested. For intent: the MR solves the wrong problem or misses a requirement.
+- `nit` — real but harmless: a leftover, a misleading name, missing description. Never formatting or style taste.
+- `pre-existing` — a real bug in code the MR did not introduce. Tagged so the author is not blamed for it.
+
+Every finding names a concrete failure — the input or state that makes it go wrong, or for intent, the requirement the MR misses. A finding you cannot make concrete is a guess: drop it, and name what you could not check in the scope line. A verifier checks each code finding next, so a guess costs a round and buys nothing. "Nothing found" is a complete answer; say it plainly.
